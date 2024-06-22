@@ -11,15 +11,31 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+
+/**
+ * Workouts view
+ */
 @Composable
 fun WorkoutsFragment() {
     Box(modifier = Modifier.fillMaxSize().background(color = Color.LightGray).padding(bottom = 100.dp),
-        contentAlignment = Alignment.BottomCenter) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Bottom) {
-            Text(text = "Workouts Fragment", fontSize = 24.sp)
+        contentAlignment = Alignment.TopCenter) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = "What are we\ndoing today?",
+                fontSize = 30.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 36.dp))
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun WorkoutsPreview() {
+    WorkoutsFragment()
 }

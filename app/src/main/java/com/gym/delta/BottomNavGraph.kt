@@ -9,6 +9,12 @@ import com.gym.delta.fragments.WorkoutsFragment
 import com.gym.delta.fragments.WeightFragment
 import com.gym.delta.fragments.JourneyFragment
 
+
+/**
+ * Graph of all navigation bar destinations.
+ *
+ * @param navController navigation bar controller
+ */
 @Composable
 fun BottomNavGraph(navController : NavHostController) {
     NavHost(

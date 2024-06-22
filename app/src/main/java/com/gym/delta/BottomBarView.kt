@@ -7,6 +7,10 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 
+
+/**
+ * Class containing details of each view; for nav bar
+ */
 sealed class BottomBarView(
     val route: String,
     val title: String,

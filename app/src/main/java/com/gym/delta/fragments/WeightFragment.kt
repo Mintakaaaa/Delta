@@ -9,6 +9,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 
+
+/**
+ * Weight view.
+ */
 @Composable
 fun WeightFragment() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

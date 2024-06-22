@@ -12,6 +12,8 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import androidx.media3.common.util.Log
@@ -32,6 +34,10 @@ class MainView : ComponentActivity() {
     }
 }
 
+
+/**
+ * Main activity is generated here
+ */
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun App() {
@@ -45,6 +51,11 @@ fun App() {
     }
 }
 
+/**
+ * Element containing bottom nav bar; adds bar items into bar
+ *
+ * @param navController navigation bar controller
+ */
 @Composable
 fun BottomBar(navController: NavHostController) {
     val views = listOf(
@@ -69,6 +80,9 @@ fun BottomBar(navController: NavHostController) {
 }
 
 
+/**
+ * Show preview of MainView.kt
+ */
 @Preview(showBackground = true)
 @Composable
 fun Preview() {
