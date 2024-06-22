@@ -22,12 +22,38 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.room.Room
+import com.gym.delta.model.Workout
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainView : ComponentActivity() {
     @OptIn(UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // TODO make singleton for DB
+        val db = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java, "app_db"
+        ).build()
+
+        // TODO make this more abstracted (i.e. make function for coroutine?)
+        CoroutineScope(Dispatchers.IO).launch { // Must use coroutine (BG thread for DB access)...
+            val workoutDao = db.workoutDao()
+            val workouts = workoutDao.getAll()
+            Log.d("Workouts from DB: ", workouts.toString())
+
+
+            withContext(Dispatchers.Main) { // If you need to update the UI with the result, switch to the Main thread
+                // Update UI with the workouts data
+                // Example: updateUI(workouts)
+                Log.d("Workouts from DB: ", workouts.toString())
+            }
+        }
         setContent {
             App()
         }
