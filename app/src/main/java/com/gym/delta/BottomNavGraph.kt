@@ -4,10 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.gym.delta.fragments.HomeFragment
-import com.gym.delta.fragments.WorkoutsFragment
-import com.gym.delta.fragments.WeightFragment
-import com.gym.delta.fragments.JourneyFragment
+import com.gym.delta.screens.HomeScreen
+import com.gym.delta.screens.JourneyScreen
+import com.gym.delta.screens.WeightScreen
+import com.gym.delta.screens.WorkoutsScreen
 
 
 /**
@@ -21,9 +21,10 @@ fun BottomNavGraph(navController : NavHostController) {
         navController = navController,
         startDestination = BottomBarView.Home.route
     ) {
-        composable(route = BottomBarView.Home.route) { HomeFragment() }
-        composable(route = BottomBarView.Workouts.route) { WorkoutsFragment() }
-        composable(route = BottomBarView.Weight.route) { WeightFragment() }
-        composable(route = BottomBarView.Journey.route) { JourneyFragment() }
+
+        composable(route = BottomBarView.Home.route) { HomeScreen() }
+        composable(route = BottomBarView.Workouts.route) { WorkoutsScreen() }
+        composable(route = BottomBarView.Weight.route) { WeightScreen() }
+        composable(route = BottomBarView.Journey.route) { JourneyScreen() }
     }
 }

@@ -1,8 +1,7 @@
-package com.gym.delta.fragments
+package com.gym.delta.screens
 
 import androidx.annotation.OptIn
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,30 +9,23 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.common.util.Log
-import androidx.media3.common.util.UnstableApi
 
 
 data class Workout(
@@ -46,7 +38,13 @@ data class Workout(
  * Contains a heading and workouts container underneath;
  */
 @Composable
-fun WorkoutsFragment() {
+fun WorkoutsScreen() {
+//    AndroidViewBinding(MyFragmentLayoutBinding::inflate) {
+//        val myFragment = fragmentContainerView.getFragment<MyFragment>()
+//        // ...
+//    }
+    // TODO im so dumb i made the fragment be a composable LOL it needs to be an actual class of fragment!!
+
     var workouts = arrayOf(
         Workout("One", listOf(true, true, true, false, false, true, false)),
         Workout("Two", listOf(true, false, false, false, false, false, true)),
@@ -182,18 +180,46 @@ fun WorkoutElement(workout : Workout) {
             }
         }
         Text(
-            text = "Every Wednesday", Modifier.padding(10.dp)
+            text = getSelectedDaysText(checkboxStates), Modifier.padding(10.dp)
         )
     }
 }
 
-//fun getSelectedDaysText(days : Array<Boolean>): String {
-//    var daysText = "Every "
-//    if (days[0]) {
-//        daysText += "Monday"
-//    }
-//    return daysText
-//}
+fun getSelectedDaysText(days: SnapshotStateList<Boolean>): String {
+    var daysText = "Every "
+    var noneSelected = false
+    var selected = 0
+    for (day in days) {
+        if (day) {
+            selected ++
+        }
+    }
+    if (selected == 0) { daysText = "No days selected" }
+    else {
+        if (days[0]) {
+            daysText += "Monday, "
+        }
+        if (days[1]) {
+            daysText += "Tuesday, "
+        }
+        if (days[2]) {
+            daysText += "Wednesday, "
+        }
+        if (days[3]) {
+            daysText += "Thursday, "
+        }
+        if (days[4]) {
+            daysText += "Friday, "
+        }
+        if (days[5]) {
+            daysText += "Saturday, "
+        }
+        if (days[6]) {
+            daysText += "Sunday"
+        }
+    }
+    return daysText
+}
 
 @Composable
 fun WorkoutCheckboxesContainer() {
@@ -237,5 +263,5 @@ fun WorkoutCheckboxesContainer() {
 @Preview(showBackground = true)
 @Composable
 fun WorkoutsPreview() {
-    WorkoutsFragment()
+    WorkoutsScreen()
 }

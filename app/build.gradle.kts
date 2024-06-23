@@ -3,11 +3,16 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.devtools.ksp") version "1.9.0-1.0.13"
 
+
 }
 
 android {
     namespace = "com.gym.delta"
     compileSdk = 34
+
+//    viewBinding {
+//        enabled = true
+//    }
 
     defaultConfig {
         applicationId = "com.gym.delta"
@@ -65,6 +70,9 @@ dependencies {
     implementation(libs.accompanist.pager)
     implementation(libs.androidx.media3.common)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.fragment.ktx)
+    implementation(libs.androidx.fragment.compose)
+    implementation(libs.androidx.appcompat)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -83,6 +91,10 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
+
+
+
+    implementation("com.google.code.gson:gson:2.8.8")
 
 
 }

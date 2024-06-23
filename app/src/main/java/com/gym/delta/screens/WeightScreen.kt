@@ -1,4 +1,4 @@
-package com.gym.delta.fragments
+package com.gym.delta.screens
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,13 +11,13 @@ import androidx.compose.ui.unit.sp
 
 
 /**
- * Journey view.
+ * Weight view.
  */
 @Composable
-fun JourneyFragment() {
+fun WeightScreen() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = "Journey Fragment", fontSize = 24.sp)
+            Text(text = "Weight Fragment", fontSize = 24.sp)
         }
     }
 }

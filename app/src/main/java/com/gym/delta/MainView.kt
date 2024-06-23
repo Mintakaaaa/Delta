@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.OptIn
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -16,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
+import androidx.fragment.app.FragmentActivity
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -35,25 +37,20 @@ class MainView : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // TODO make singleton for DB
-        val db = Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java, "app_db"
-        ).build()
+        val db = AppDatabase.getInstance(this)
 
-        // TODO make this more abstracted (i.e. make function for coroutine?)
-        CoroutineScope(Dispatchers.IO).launch { // Must use coroutine (BG thread for DB access)...
-            val workoutDao = db.workoutDao()
-            val workouts = workoutDao.getAll()
-            Log.d("Workouts from DB: ", workouts.toString())
-
-
-            withContext(Dispatchers.Main) { // If you need to update the UI with the result, switch to the Main thread
-                // Update UI with the workouts data
-                // Example: updateUI(workouts)
-                Log.d("Workouts from DB: ", workouts.toString())
+        AppDatabase.populateWithDummy(db) { success ->
+            if (success) {
+                Log.d("DB", "POPULATED")
+            }
+            else {
+                Log.d("DB", "NOT populated")
             }
         }
+        AppDatabase.getWorkoutsFromDb(db) { workouts ->
+            // update ui, you have workouts now
+        }
+
         setContent {
             App()
         }
