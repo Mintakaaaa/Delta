@@ -1,4 +1,4 @@
-package com.gym.delta.screens
+package com.gym.delta.ui.screens
 
 import androidx.annotation.OptIn
 import androidx.compose.foundation.background
@@ -8,8 +8,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Text
@@ -21,6 +24,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,20 +44,12 @@ data class Workout(
  */
 @Composable
 fun WorkoutsScreen() {
-//    AndroidViewBinding(MyFragmentLayoutBinding::inflate) {
-//        val myFragment = fragmentContainerView.getFragment<MyFragment>()
-//        // ...
-//    }
-    // TODO im so dumb i made the fragment be a composable LOL it needs to be an actual class of fragment!!
-
     var workouts = arrayOf(
         Workout("One", listOf(true, true, true, false, false, true, false)),
         Workout("Two", listOf(true, false, false, false, false, false, true)),
         Workout("Three", listOf(false, false, true, true, false, false, false))
     )
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .padding(bottom = 80.dp),
+    Box(modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.TopCenter) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
@@ -64,6 +61,8 @@ fun WorkoutsScreen() {
         }
     }
 }
+
+
 
 /**
  * Workouts container;

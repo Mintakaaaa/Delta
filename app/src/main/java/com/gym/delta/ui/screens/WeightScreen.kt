@@ -1,4 +1,4 @@
-package com.gym.delta.screens
+package com.gym.delta.ui.screens
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
