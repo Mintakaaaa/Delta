@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@+id/home_dest">
+    <fragment
+        android:id="@+id/home_dest"
+        android:name="com.gym.delta.fragments.HomeFragment"
+        android:label="Workouts"
+        tools:layout="@layout/home_fragment">
+
+        <action
+        android:id="@+id/next_action"
+        app:destination="@+id/workouts_dest"
+        app:enterAnim="@anim/slide_in_right"
+        app:exitAnim="@anim/slide_out_left"
+        app:popEnterAnim="@anim/slide_in_left"
+        app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/workouts_dest"
+        android:name="com.gym.delta.fragments.WorkoutsFragment"
+        tools:layout="@layout/workouts_fragment">
+        <argument
+            android:name="flowStepNumber"
+            app:argType="integer"
+            android:defaultValue="1"/>
+
+<!--        <action-->
+<!--            android:id="@+id/next_action"-->
+<!--            app:destination="@+id/flow_step_two_dest">-->
+<!--        </action>-->
+    </fragment>
+
+    <fragment
+        android:id="@+id/weight_dest"
+        android:name="com.gym.delta.fragments.WeightFragment"
+        tools:layout="@layout/weight_fragment">
+
+<!--        <argument-->
+<!--            android:name="flowStepNumber"-->
+<!--            app:argType="integer"-->
+<!--            android:defaultValue="2"/>-->
+
+<!--        <action-->
+<!--            android:id="@+id/next_action"-->
+<!--            app:popUpTo="@id/home_dest">-->
+<!--        </action>-->
+    </fragment>
+
+    <fragment
+        android:id="@+id/journey_dest"
+        android:name="com.gym.delta.fragments.JourneyFragment"
+        tools:layout="@layout/journey_fragment">
+
+        <!--        <argument-->
+        <!--            android:name="flowStepNumber"-->
+        <!--            app:argType="integer"-->
+        <!--            android:defaultValue="2"/>-->
+
+        <!--        <action-->
+        <!--            android:id="@+id/next_action"-->
+        <!--            app:popUpTo="@id/home_dest">-->
+        <!--        </action>-->
+    </fragment>
+</navigation>

@@ -1,5 +1,6 @@
 package com.gym.delta.screens
 
+//import android.app.PendingIntent.getActivity
 import androidx.annotation.OptIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -39,17 +40,14 @@ data class Workout(
  */
 @Composable
 fun WorkoutsScreen() {
-//    AndroidViewBinding(MyFragmentLayoutBinding::inflate) {
-//        val myFragment = fragmentContainerView.getFragment<MyFragment>()
-//        // ...
-//    }
-    // TODO im so dumb i made the fragment be a composable LOL it needs to be an actual class of fragment!!
 
-    var workouts = arrayOf(
-        Workout("One", listOf(true, true, true, false, false, true, false)),
-        Workout("Two", listOf(true, false, false, false, false, false, true)),
-        Workout("Three", listOf(false, false, true, true, false, false, false))
-    )
+    val workouts = ArrayList<Workout>()
+//    val db = AppDatabase.getInstance()
+    // TODO again ran into error omg need to look into using Dagger Hilt
+//    AppDatabase.getWorkoutsFromDb(db) {workouts ->
+//         update ui, you have workouts now
+//    }
+
     Box(modifier = Modifier
         .fillMaxSize()
         .padding(bottom = 80.dp),
@@ -70,7 +68,7 @@ fun WorkoutsScreen() {
  * Contains the container title and the content container
  */
 @Composable
-fun WorkoutsContainer(workouts : Array<Workout>) {
+fun WorkoutsContainer(workouts: ArrayList<Workout>) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.TopCenter
@@ -105,7 +103,7 @@ fun TopRoundedTitleContainer(title : String) {
  * Content container
  */
 @Composable
-fun TopRoundedContentContainer(workouts : Array<Workout>) {
+fun TopRoundedContentContainer(workouts: ArrayList<Workout>) {
     var workout = Workout("New Workout", listOf(true, true, false, false, false, true, false))
     var workoutTwo = Workout("Newer Workout", listOf(false, false, false, false, false, true, false))
 

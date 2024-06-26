@@ -1,4 +1,4 @@
-package com.gym.delta
+package com.gym.delta.dao
 
 import androidx.room.Dao
 import androidx.room.Insert

@@ -1,16 +1,10 @@
 package com.gym.delta
 
 import android.content.Context
-import androidx.annotation.OptIn
-import androidx.media3.common.util.Log
-import androidx.media3.common.util.UnstableApi
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
-import com.gym.delta.util.Converters
+import com.gym.delta.dao.WorkoutDao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,7 +36,6 @@ abstract class AppDatabase : RoomDatabase() {
                         AppDatabase::class.java,
                         DATABASE_NAME
                     )
-//                        .addMigrations(MIGRATION_1_2)
                         .build()
 
                     INSTANCE = instance
@@ -86,13 +79,5 @@ abstract class AppDatabase : RoomDatabase() {
 //            Log.d("Workouts from DB: ", workouts.toString())
 //        }
 
-
-//        private val MIGRATION_1_2 = object : Migration(1, 2) {
-//            override fun migrate(db: SupportSQLiteDatabase) {
-//                // Perform necessary migration SQL operations here
-//                // Example: Add new columns, rename tables, etc.
-//                db.execSQL("ALTER TABLE Workout ADD COLUMN days TEXT")
-//            }
-//        }
     }
 }
