@@ -2,6 +2,8 @@ package com.gym.delta
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -23,16 +25,26 @@ fun DeltaNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
+
+    val context = LocalContext.current
+
+    val database = AppDatabase.getInstance(context)
+    val repository = WorkoutRepository(database.workoutDao())
+
     NavHost(
         navController = navController,
         startDestination = Home.route,
-        modifier = modifier
+        modifier = modifier,
     ) {
         composable(route = Home.route) {
             HomeScreen()
         }
         composable(route = Workouts.route) {
-            WorkoutsScreen()
+            WorkoutsScreen(
+                workoutViewModel = viewModel(
+                    factory = WorkoutViewModelFactory(repository)
+                )
+            )
         }
         composable(route = Weight.route) {
             WeightScreen()

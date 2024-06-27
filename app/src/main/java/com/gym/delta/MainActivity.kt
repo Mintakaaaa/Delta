@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.annotation.OptIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -16,6 +17,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -26,25 +29,8 @@ import com.gym.delta.ui.components.DeltaTabRow
 import com.gym.delta.ui.theme.DeltaTheme
 
 class MainActivity : ComponentActivity() {
-    @OptIn(UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        enableEdgeToEdge()
-
-//        val db = AppDatabase.getInstance(this)
-//
-//        AppDatabase.populateWithDummy(db) { success ->
-//            if (success) {
-//                Log.d("DB", "POPULATED")
-//            }
-//            else {
-//                Log.d("DB", "NOT populated")
-//            }
-//        }
-//        AppDatabase.getWorkoutsFromDb(db) { workouts ->
-//            // update ui, you have workouts now
-//        }
-
         setContent {
             DeltaTheme {
                 App()
@@ -85,7 +71,7 @@ fun App() {
         ) { innerPadding ->
             DeltaNavHost(
                 navController = navController,
-                modifier = Modifier.padding(innerPadding)
+                modifier = Modifier.padding(innerPadding),
             )
         }
     }

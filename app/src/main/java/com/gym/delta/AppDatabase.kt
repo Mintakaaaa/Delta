@@ -15,11 +15,34 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import com.gym.delta.model.Workout
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
 
 @Database(entities = [Workout::class], version = 2)
 //@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun workoutDao(): WorkoutDao
+
+    private class AppDatabaseCallback : Callback() {
+
+        override fun onCreate(db: SupportSQLiteDatabase) {
+            super.onCreate(db)
+            INSTANCE?.let { database ->
+                CoroutineScope(Dispatchers.IO).launch {
+                    var workoutDao = database.workoutDao()
+
+                    // Delete all content here.
+                    workoutDao.deleteAll()
+
+                    // Add workouts as needed
+                    var w = Workout(name = "Workout A", days = arrayListOf(true, false, true, false, true, false, true)) // y f y f y f y
+                    var ww = Workout(name = "Workout B", days = arrayListOf(false, true, false, true, false, true, false)) // f y f y f y f
+                    var www = Workout(name = "Workout C", days = arrayListOf(true, true, true, true, true, true, true)) // y y y y y y y
+                    workoutDao.insertAll(w, ww, www)
+                }
+            }
+        }
+    }
 
     companion object {
         private const val DATABASE_NAME = "delta_db"
@@ -43,6 +66,7 @@ abstract class AppDatabase : RoomDatabase() {
                         DATABASE_NAME
                     )
 //                        .addMigrations(MIGRATION_1_2)
+                        .addCallback(AppDatabaseCallback())
                         .build()
 
                     INSTANCE = instance
@@ -61,7 +85,7 @@ abstract class AppDatabase : RoomDatabase() {
                     // Add more workouts as needed
 
                     val workoutDao = db.workoutDao()
-                    workoutDao.deleteAllWorkouts()
+                    workoutDao.deleteAll()
                     workoutDao.insertAll(w, ww, www)
                     onResult(true)
                 }
@@ -71,7 +95,7 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         // Function to handle database operations in the background
-        fun getWorkoutsFromDb(db: AppDatabase, onResult: (List<Workout>) -> Unit) {
+        fun getWorkoutsFromDb(db: AppDatabase, onResult: (Flow<List<Workout>>) -> Unit) {
             CoroutineScope(Dispatchers.IO).launch {
                 val workoutDao = db.workoutDao()
                 val workouts = workoutDao.getAll()

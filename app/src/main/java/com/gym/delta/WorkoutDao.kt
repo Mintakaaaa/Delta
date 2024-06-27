@@ -2,19 +2,22 @@ package com.gym.delta
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.TypeConverters
 import com.gym.delta.model.Workout
 import com.gym.delta.util.Converters
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 @TypeConverters(Converters::class)
 interface WorkoutDao {
-    @Insert
-    fun Insert(workout : Workout)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(workout : Workout)
 
     @Query("SELECT * FROM Workouts")
-    fun getAll(): List<Workout>
+    fun getAll(): Flow<List<Workout>>
 
 //    @Query("SELECT * FROM user WHERE uid IN (:userIds)")
 //    fun loadAllByIds(userIds: IntArray): List<User>
@@ -23,13 +26,13 @@ interface WorkoutDao {
 //            "last_name LIKE :last LIMIT 1")
 //    fun findByName(first: String, last: String): User
 //
-    @Insert
-    fun insertAll(vararg workouts: Workout)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAll(vararg workouts: Workout)
 
 //    @Delete
-//    fun delete(user: User)
+//    suspend fun delete(workout: Workout)
 
     @Query("DELETE FROM Workouts")
-    fun deleteAllWorkouts()
+    suspend fun deleteAll()
 
 }

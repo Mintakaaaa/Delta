@@ -73,6 +73,7 @@ dependencies {
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.fragment.compose)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.runtime.livedata)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -92,8 +93,10 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 
+    implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.6.0") // Update to the latest version
+    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.0") // Also include runtime extensions
 
-
+    implementation ("androidx.room:room-ktx:$room_version")
     implementation("com.google.code.gson:gson:2.8.8")
 
 
