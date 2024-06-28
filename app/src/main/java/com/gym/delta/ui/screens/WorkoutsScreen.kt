@@ -118,20 +118,6 @@ fun WorkoutsScreen(workoutViewModel: WorkoutViewModel) {
             modifier = Modifier.padding(40.dp)
         )
         MainContainer(workoutsState, onWorkoutAdded = { newWorkout -> workoutViewModel.insert(newWorkout) })
-//            Button(
-//                onClick = {
-//                    workoutViewModel.insert(
-//                        Workout(name = "New Workout", days = arrayListOf(false, false, false, false, true, true, true)))
-//                },
-//                modifier = Modifier.padding(bottom = 16.dp)
-//            ) {
-//                Text("Add Workout")
-//            }
-
-//            workoutsState.value.forEach { workout ->
-//                WorkoutItem(workout = workout)
-//                Spacer(modifier = Modifier.height(8.dp))
-//            }
     }
 }
 
