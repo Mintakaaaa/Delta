@@ -14,19 +14,23 @@ import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
     background = GreyBase,
+    onBackground = GreyMid,
 
     primary = Yellow,
     onPrimaryContainer = DarkYellow,
     primaryContainer = Navy,
 
-//    secondary = DarkYellow,
+    secondary = DarkYellow,
     onSecondaryContainer = DarkYellow,
     secondaryContainer = DarkNavy,
 
 //    surface = GreyMid,
-//    onSurface = OffWhite,
+    tertiary = MidNavy,
+    onTertiaryContainer = OffWhite,
     tertiaryContainer = Navy,
 //    onTertiaryContainer = DarkNavy,
+
+    surfaceVariant = DarkNavy,
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -47,7 +51,6 @@ fun DeltaTheme(
     content: @Composable () -> Unit
 ) {
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
-
     MaterialTheme(
         colorScheme = colorScheme,
         typography = kanitTypography,

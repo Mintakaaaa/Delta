@@ -83,30 +83,5 @@ abstract class AppDatabase : RoomDatabase() {
             workoutDao.insertAll(*workouts.toTypedArray())
             Log.d("AppDatabase", "Populated database with dummy data.")
         }
-
-        // Function to handle database operations in the background
-        fun getWorkoutsFromDb(db: AppDatabase, onResult: (Flow<List<Workout>>) -> Unit) {
-            CoroutineScope(Dispatchers.IO).launch {
-                val workoutDao = db.workoutDao()
-                val workouts = workoutDao.getAll()
-                onResult(workouts)
-            }
-        }
-
-//        // Function to update the UI
-//        @OptIn(UnstableApi::class)
-//        fun updateUIWithWorkouts(workouts: List<Workout>) {
-//            // Your UI update logic here
-//            Log.d("Workouts from DB: ", workouts.toString())
-//        }
-
-
-//        private val MIGRATION_1_2 = object : Migration(1, 2) {
-//            override fun migrate(db: SupportSQLiteDatabase) {
-//                // Perform necessary migration SQL operations here
-//                // Example: Add new columns, rename tables, etc.
-//                db.execSQL("ALTER TABLE Workout ADD COLUMN days TEXT")
-//            }
-//        }
     }
 }

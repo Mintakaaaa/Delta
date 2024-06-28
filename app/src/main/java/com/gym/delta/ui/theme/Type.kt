@@ -50,6 +50,20 @@ val kanitTypography = Typography(
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp
     ),
+    bodyMedium = TextStyle(
+        fontFamily = kanitFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.5.sp
+    ),
+    bodySmall = TextStyle(
+        fontFamily = kanitFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 12.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.5.sp
+    ),
 //    titleLarge = TextStyle(
 //        fontFamily = FontFamily.Default,
 //        fontWeight = FontWeight.Normal,
@@ -71,4 +85,11 @@ val kanitTypography = Typography(
 //        lineHeight = 16.sp,
 //        letterSpacing = 0.5.sp
 //    )
+    headlineMedium = TextStyle(
+        fontFamily = kanitFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 22.sp,
+        lineHeight = 28.sp,
+        letterSpacing = 0.2.sp
+    ),
 )
