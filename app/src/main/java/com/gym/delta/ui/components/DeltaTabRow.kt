@@ -91,7 +91,7 @@ private fun DeltaTab(
                 role = Role.Tab
             )
     ) {
-        Icon(imageVector = icon, contentDescription = text, tint = Color.Red)
+        Icon(imageVector = icon, contentDescription = text, tint = MaterialTheme.colorScheme.primary)
         if (selected) { // if this menu selected, show menu text
             Spacer(Modifier.width(12.dp))
             Text(text.uppercase())

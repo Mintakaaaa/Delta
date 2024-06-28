@@ -12,6 +12,8 @@ import com.gym.delta.ui.screens.HomeScreen
 import com.gym.delta.ui.screens.JourneyScreen
 import com.gym.delta.ui.screens.WeightScreen
 import com.gym.delta.ui.screens.WorkoutsScreen
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 
 
 /**
@@ -27,8 +29,8 @@ fun DeltaNavHost(
 ) {
 
     val context = LocalContext.current
-
-    val database = AppDatabase.getInstance(context)
+    val scope = CoroutineScope(Dispatchers.IO)
+    val database = AppDatabase.getInstance(context, scope)
     val repository = WorkoutRepository(database.workoutDao())
 
     NavHost(

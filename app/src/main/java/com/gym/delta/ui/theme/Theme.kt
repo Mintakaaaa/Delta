@@ -13,17 +13,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80,
-    background = Color(0xff1f1f1f)
+    background = GreyBase,
+
+    primary = Yellow,
+    onPrimaryContainer = DarkYellow,
+    primaryContainer = Navy,
+
+//    secondary = DarkYellow,
+    onSecondaryContainer = DarkYellow,
+    secondaryContainer = DarkNavy,
+
+//    surface = GreyMid,
+//    onSurface = OffWhite,
+    tertiaryContainer = Navy,
+//    onTertiaryContainer = DarkNavy,
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40,
-
     //Other default colors to override
     background = Color.White
 //    surface = Color(0xFFFFFBFE),
@@ -44,7 +50,7 @@ fun DeltaTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = kanitTypography,
         content = content
     )
 }

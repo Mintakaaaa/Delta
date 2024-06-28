@@ -23,22 +23,16 @@ import kotlinx.coroutines.flow.Flow
 abstract class AppDatabase : RoomDatabase() {
     abstract fun workoutDao(): WorkoutDao
 
-    private class AppDatabaseCallback : Callback() {
+    private class AppDatabaseCallback(
+        private val scope: CoroutineScope
+    ) : Callback() {
 
+        @OptIn(UnstableApi::class)
         override fun onCreate(db: SupportSQLiteDatabase) {
             super.onCreate(db)
             INSTANCE?.let { database ->
-                CoroutineScope(Dispatchers.IO).launch {
-                    var workoutDao = database.workoutDao()
-
-                    // Delete all content here.
-                    workoutDao.deleteAll()
-
-                    // Add workouts as needed
-                    var w = Workout(name = "Workout A", days = arrayListOf(true, false, true, false, true, false, true)) // y f y f y f y
-                    var ww = Workout(name = "Workout B", days = arrayListOf(false, true, false, true, false, true, false)) // f y f y f y f
-                    var www = Workout(name = "Workout C", days = arrayListOf(true, true, true, true, true, true, true)) // y y y y y y y
-                    workoutDao.insertAll(w, ww, www)
+                scope.launch {
+                    populateWithDummy(database)
                 }
             }
         }
@@ -54,7 +48,7 @@ abstract class AppDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
-        fun getInstance(context: Context): AppDatabase {
+        fun getInstance(context: Context, scope: CoroutineScope): AppDatabase {
 
             synchronized(this) {
                 var instance = INSTANCE
@@ -66,7 +60,7 @@ abstract class AppDatabase : RoomDatabase() {
                         DATABASE_NAME
                     )
 //                        .addMigrations(MIGRATION_1_2)
-                        .addCallback(AppDatabaseCallback())
+                        .addCallback(AppDatabaseCallback(scope))
                         .build()
 
                     INSTANCE = instance
@@ -75,23 +69,19 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
-        fun populateWithDummy(db: AppDatabase, onResult: (Boolean) -> Unit) {
-            try {
-                CoroutineScope(Dispatchers.IO).launch {
+        @OptIn(UnstableApi::class)
+        suspend fun populateWithDummy(db: AppDatabase) {
+            val workoutDao = db.workoutDao()
+            workoutDao.deleteAll()
 
-                    val w = Workout(name = "Workout A", days = arrayListOf(true, false, true, false, true, false, true)) // y f y f y f y
-                    val ww = Workout(name = "Workout B", days = arrayListOf(false, true, false, true, false, true, false)) // f y f y f y f
-                    val www = Workout(name = "Workout C", days = arrayListOf(true, true, true, true, true, true, true)) // y y y y y y y
-                    // Add more workouts as needed
+            val workouts = listOf(
+                Workout(name = "Workout A", days = arrayListOf(true, false, true, false, true, false, true)),
+                Workout(name = "Workout B", days = arrayListOf(false, true, false, true, false, true, false)),
+                Workout(name = "Workout C", days = arrayListOf(true, true, true, true, true, true, true))
+            )
 
-                    val workoutDao = db.workoutDao()
-                    workoutDao.deleteAll()
-                    workoutDao.insertAll(w, ww, www)
-                    onResult(true)
-                }
-            } catch (e: Exception) {
-                onResult(false)
-            }
+            workoutDao.insertAll(*workouts.toTypedArray())
+            Log.d("AppDatabase", "Populated database with dummy data.")
         }
 
         // Function to handle database operations in the background
