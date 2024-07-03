@@ -356,6 +356,13 @@ fun WorkoutElement(workout : Workout, onDeleteClick: () -> Unit) {
                             cursorBrush = SolidColor(MaterialTheme.colorScheme.secondary), // cursor color
                             textStyle =  TextStyle(fontFamily = kanitFontFamily, fontSize = 22.sp, color = MaterialTheme.colorScheme.secondary),
                             modifier = Modifier.weight(1f).focusRequester(focusRequester).onGloballyPositioned { focusRequester.requestFocus() },
+                            // NOTE: below is optional UNDERLINE
+//                            decorationBox = { innerTextField ->
+//                                Column(modifier = Modifier.padding(end = 5.dp)) {
+//                                    innerTextField()
+//                                    Divider(color = MaterialTheme.colorScheme.secondary, thickness = 1.dp)
+//                                }
+//                            }
                         )
                     }
                 }
