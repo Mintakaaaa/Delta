@@ -19,4 +19,9 @@ class WorkoutRepository(private val workoutDao: WorkoutDao) {
     suspend fun insert(workout: Workout) {
         workoutDao.insert(workout)
     }
+
+    @WorkerThread
+    suspend fun delete(workout: Workout) {
+        workoutDao.delete(workout)
+    }
 }

@@ -12,4 +12,4 @@ data class Workout(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "name") val name: String?,
     @ColumnInfo(name = "days") var days: ArrayList<Boolean>?
-)
+    )

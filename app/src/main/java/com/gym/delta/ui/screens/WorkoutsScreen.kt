@@ -1,6 +1,16 @@
 package com.gym.delta.ui.screens
 
 import androidx.annotation.OptIn
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,8 +29,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.Add
@@ -43,6 +56,8 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
@@ -73,14 +88,22 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.lifecycle.ViewModel
@@ -88,6 +111,7 @@ import androidx.media3.common.util.UnstableApi
 import com.gym.delta.R
 import com.gym.delta.ui.theme.DeltaTheme
 import com.gym.delta.ui.theme.kanitFontFamily
+import com.gym.delta.ui.theme.kanitTypography
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -117,7 +141,7 @@ fun WorkoutsScreen(workoutViewModel: WorkoutViewModel) {
             ),
             modifier = Modifier.padding(40.dp)
         )
-        MainContainer(workoutsState, onWorkoutAdded = { newWorkout -> workoutViewModel.insert(newWorkout) })
+        MainContainer(workoutsState, workoutViewModel)
     }
 }
 
@@ -127,7 +151,7 @@ fun WorkoutsScreen(workoutViewModel: WorkoutViewModel) {
  * Contains the container title and the content container
  */
 @Composable
-fun MainContainer(workouts: State<List<Workout>>, onWorkoutAdded: (Workout) -> Unit) {
+fun MainContainer(workouts: State<List<Workout>>, workoutViewModel: WorkoutViewModel) {
     val currentDay = getCurrentDayString()
 
     Column(
@@ -135,9 +159,7 @@ fun MainContainer(workouts: State<List<Workout>>, onWorkoutAdded: (Workout) -> U
     ) {
         TopRoundedTitleContainer("Workouts", currentDay)
         Spacer(Modifier.padding(4.dp))
-        WorkoutsContainer(workouts, onWorkoutAdded = {
-            newWorkout -> onWorkoutAdded(newWorkout)
-        })
+        WorkoutsContainer(workouts, workoutViewModel)
     }
 }
 
@@ -170,7 +192,8 @@ fun TopRoundedTitleContainer(title : String, subHeading : String) {
                 style = MaterialTheme.typography.titleSmall)
         }
         HorizontalDivider(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
                 .padding(10.dp)
                 .clip(RoundedCornerShape(6.dp)),
             thickness = 3.dp,
@@ -190,7 +213,7 @@ fun TopRoundedTitleContainer(title : String, subHeading : String) {
  * Content container
  */
 @Composable
-fun WorkoutsContainer(workouts : State<List<Workout>>, onWorkoutAdded: (Workout) -> Unit) {
+fun WorkoutsContainer(workouts : State<List<Workout>>, workoutViewModel: WorkoutViewModel) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -199,9 +222,15 @@ fun WorkoutsContainer(workouts : State<List<Workout>>, onWorkoutAdded: (Workout)
             .padding(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        items(workouts.value) { workout ->
-            WorkoutElement(workout = workout)
-            Spacer(Modifier.padding(4.dp))
+        items(workouts.value, key = { workout -> workout.id }) { workout ->
+//            var visible by remember { mutableStateOf(true) }
+//            AnimatedVisibility(visible = visible, enter = fadeIn(), exit = fadeOut()) {
+                WorkoutElement(workout = workout, onDeleteClick = {
+//                    visible = false
+                    workoutViewModel.delete(workout)
+                })
+                Spacer(Modifier.padding(4.dp))
+//            }
         }
         item(key = "AddWorkoutButton") {
             Spacer(Modifier.height(10.dp))
@@ -209,7 +238,7 @@ fun WorkoutsContainer(workouts : State<List<Workout>>, onWorkoutAdded: (Workout)
             FilledIconButton(
                 onClick = {
                     val newWorkout = Workout(name = "New Workout", days = arrayListOf(false, false, false, false, false, false, false))
-                    onWorkoutAdded(newWorkout)
+                    workoutViewModel.insert(newWorkout)
                 },
                 modifier = Modifier
                     .size(50.dp),
@@ -220,25 +249,42 @@ fun WorkoutsContainer(workouts : State<List<Workout>>, onWorkoutAdded: (Workout)
                     Icons.Filled.Add,
                     contentDescription = "Add button",
                     tint = MaterialTheme.colorScheme.secondaryContainer,
-                    modifier = Modifier.fillMaxSize().padding(4.dp)
-
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(4.dp)
                 )
             }
         }
     }
 }
 
-
 @OptIn(androidx.media3.common.util.UnstableApi::class)
 @Composable
-fun WorkoutElement(workout : Workout) {
-    val checkboxStates = remember { workout.days?.toMutableStateList() } // LOAD WORKOUT DAYS INTO MUTABLE LIST
-    checkboxStates?.get(0)?.let { Log.d("states0", it.toString()) }
+fun WorkoutElement(workout : Workout, onDeleteClick: () -> Unit) {
+    val checkboxStates = remember(workout.id) { workout.days?.toMutableStateList() } // Load workout days into a mutable list
+    var expanded by remember(workout.id) { mutableStateOf(false) } // Remember expanded state per workout
     Log.d("workout.days = ", workout.days.toString())
 
+    var editingName by remember { mutableStateOf(false) }
+    val textFieldValue = remember { mutableStateOf(workout.name?.let { // need this to put BasicTextField cursor on end of string
+            TextFieldValue(
+                it,
+                TextRange(it.length)
+            )
+        })
+    }
 
-    var expanded by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current // NOTE (later use?) focusManager.clearFocus()
+    val focusRequester = remember { FocusRequester() }
 
+    Row(modifier = Modifier.padding(bottom = 5.dp), horizontalArrangement = Arrangement.Start){
+        Text(
+            text = getDaysSelectedText(checkboxStates),
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+    }
     Card(
         modifier = Modifier
             .clip(RoundedCornerShape(0.dp))
@@ -247,13 +293,78 @@ fun WorkoutElement(workout : Workout) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(20.dp)
         ) {
-            workout.name?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.headlineMedium
-                )
+            AnimatedVisibility(
+                visible = expanded && !editingName,
+                enter = expandHorizontally() + fadeIn(),
+                exit = shrinkHorizontally() + fadeOut(),
+            ) {
+                Row {
+                    FilledIconButton(
+                        onClick = { /*
+
+                        TODO EDIT NAME FUNCTIONALITY
+
+                        TODO on EDIT click
+                        TODO -> text appears from top of screen saying "editing workout name"
+                        TODO -> edit button shrinks to the left
+                        TODO -> days card collapses
+                        TODO -> arrow button shrinks to right OR gets replaced (see below)
+                        TODO -> in place of arrow, is TICK and CROSS buttons.
+
+                        TODO on TICK click
+                        TODO -> TICK and CROSS replaced by up arrow
+                        TODO -> days card is expanded
+                        TODO -> edit button appears
+                        TODO -> "editing workout name" text slides up out of screen
+                        TODO -> new workout name is saved
+
+                        TODO on CROSS click
+                        TODO -> TICK and CROSS replaced by up arrow
+                        TODO -> days card is expanded
+                        TODO -> edit button appears
+                        TODO -> "editing workout name" text slides up out of screen
+                        TODO -> old workout name is displayed
+
+                        TODO on focus loss, nothing?
+
+                        */
+                            editingName = !editingName
+                        },
+                        modifier = Modifier.size(40.dp),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                    ) {
+                        Icon(
+                            Icons.Filled.Edit,
+                            contentDescription = "Edit button",
+                            tint = MaterialTheme.colorScheme.secondaryContainer,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(4.dp)
+                        )
+                    }
+                    Spacer(Modifier.width(10.dp))
+                }
             }
-            Spacer(modifier = Modifier.weight(1f))
+
+            workout.name?.let {
+                if (editingName) {
+                    textFieldValue.value?.let { it1 ->
+                        BasicTextField(
+                            value = it1,
+                            onValueChange = { newText -> textFieldValue.value = newText },
+                            cursorBrush = SolidColor(MaterialTheme.colorScheme.secondary), // cursor color
+                            textStyle =  TextStyle(fontFamily = kanitFontFamily, fontSize = 22.sp, color = MaterialTheme.colorScheme.secondary),
+                            modifier = Modifier.weight(1f).focusRequester(focusRequester).onGloballyPositioned { focusRequester.requestFocus() },
+                        )
+                    }
+                }
+                else {
+                    Text(
+                        text = it, style = MaterialTheme.typography.headlineMedium, modifier = Modifier.weight(1f)
+                    )
+                }
+            }
             IconButton(
                 onClick = { expanded = !expanded },
                 modifier = Modifier.size(40.dp)
@@ -262,14 +373,19 @@ fun WorkoutElement(workout : Workout) {
                 else { Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "Arrow down", modifier = Modifier.fillMaxSize()) }
             }
         }
-        if (expanded) { ExpandableDaysCard(checkboxStates) }
+        AnimatedVisibility(
+            visible = expanded,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut()
+        ) {
+            ExpandableDaysCard(checkboxStates, onDeleteClick = onDeleteClick)
+        }
     }
 }
 
-
 @OptIn(UnstableApi::class)
 @Composable
-fun ExpandableDaysCard(checkboxStates: SnapshotStateList<Boolean>?) {
+fun ExpandableDaysCard(checkboxStates: SnapshotStateList<Boolean>?, onDeleteClick: () -> Unit) {
     val days = arrayOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 
     Column(
@@ -309,6 +425,7 @@ fun ExpandableDaysCard(checkboxStates: SnapshotStateList<Boolean>?) {
                         onCheckedChange = { isChecked ->
                             checkboxStates[index] = isChecked
                             Log.d("state $index", checkboxStates[index].toString())
+                            // TODO on check change update days of this workout!!
                         },
                         colors = CheckboxDefaults.colors(
                             checkedColor = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -320,17 +437,41 @@ fun ExpandableDaysCard(checkboxStates: SnapshotStateList<Boolean>?) {
                 }
             }
         }
-        Text(
-            text = getSelectedDaysText(checkboxStates),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.tertiary,
-//            textColor = MaterialTheme.colorScheme.tertiary
-        )
+        Row(verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(10.dp)) {
+            Spacer(modifier = Modifier.weight(1f))
+            FilledIconButton(
+                onClick = onDeleteClick,
+                modifier = Modifier
+                    .size(40.dp),
+                shape = RoundedCornerShape(10.dp),
+                colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.secondary)
+            ) {
+                Icon(
+                    Icons.Filled.Delete,
+                    contentDescription = "Add button",
+                    tint = MaterialTheme.colorScheme.secondaryContainer,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(4.dp)
+                )
+            }
+        }
     }
 }
 
-fun getSelectedDaysText(days: SnapshotStateList<Boolean>?): String {
-    var daysText = "Every "
+val dayOfWeekMap = mapOf(
+    0 to "Monday",
+    1 to "Tuesday",
+    2 to "Wednesday",
+    3 to "Thursday",
+    4 to "Friday",
+    5 to "Saturday",
+    6 to "Sunday"
+)
+
+fun getDaysSelectedText(days: SnapshotStateList<Boolean>?): String {
+    var daysText = ""
     var selected = 0
     if (days != null) {
         for (day in days) {
@@ -341,69 +482,17 @@ fun getSelectedDaysText(days: SnapshotStateList<Boolean>?): String {
     }
     if (selected == 0) { daysText = "No days selected" }
     else {
-        if (days?.get(0) == true) {
-            daysText += "Monday, "
-        }
-        if (days?.get(1) == true) {
-            daysText += "Tuesday, "
-        }
-        if (days?.get(2)!!) {
-            daysText += "Wednesday, "
-        }
-        if (days[3]) {
-            daysText += "Thursday, "
-        }
-        if (days[4]) {
-            daysText += "Friday, "
-        }
-        if (days[5]) {
-            daysText += "Saturday, "
-        }
-        if (days[6]) {
-            daysText += "Sunday"
+        if (days != null) {
+            days.forEachIndexed() { dayIndex, isChecked ->
+                if (isChecked) {
+                    daysText += ( dayOfWeekMap[dayIndex] + " | ")
+                }
+            }
+            daysText = daysText.substring(0, daysText.length - 3)
         }
     }
     return daysText
 }
-//
-//@Composable
-//fun WorkoutCheckboxesContainer() {
-////    val checkboxStates = remember { mutableStateListOf(false, false, false, false, false, false, false) }
-//    Box(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .clip(RoundedCornerShape(16.dp))
-//            .background(Color.White)
-//            .padding(10.dp),
-//    ) {
-//        Row() {
-//            Text(text = "New Workout")
-//            Spacer(modifier = Modifier.weight(1f))
-//            Text(text = "^")
-//        }
-//    }
-//}
-//
-////@Composable
-////fun DayElement(day : String, isChecked : Boolean) {
-////    Column(
-////        horizontalAlignment = Alignment.CenterHorizontally
-////    ) {
-////        Text(
-////            text = day,
-////        )
-////        Checkbox(
-////            checked = isChecked,
-////            onCheckedChange = { isChecked = it },
-////            colors = CheckboxDefaults.colors(
-////                checkedColor = Color.Green,
-////                uncheckedColor = Color.Red,
-////                checkmarkColor = Color.White
-////            )
-////        )
-////    }
-////}
-
 
 @Preview
 @Composable
@@ -414,9 +503,9 @@ fun WorkoutsPreview() {
 //        val viewModel = WorkoutViewModel(WorkoutRepository())
 //        val viewModel = WorkoutViewModel(WorkoutRepository(AppDatabase.getInstance(LocalContext.current, CoroutineScope(Dispatchers.IO)).workoutDao()))
 //        WorkoutsScreen(workoutViewModel = viewModel)
-//        WorkoutElement(Workout(id = 0, name = "Hello", days = arrayListOf(true, true, true, false, false, true, true)))
+        WorkoutElement(Workout(id = 0, name = "Hello", days = arrayListOf(true, true, true, false, false, true, true)), onDeleteClick = {})
 //        TopRoundedTitleContainer("Workouts", "Saturday")
-
+//        ExpandableDaysCard(checkboxStates = null)
 
     }
 }

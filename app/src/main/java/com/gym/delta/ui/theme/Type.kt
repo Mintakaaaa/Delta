@@ -61,7 +61,7 @@ val kanitTypography = Typography(
         fontFamily = kanitFontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 12.sp,
-        lineHeight = 24.sp,
+        lineHeight = 20.sp,
         letterSpacing = 0.5.sp
     ),
 //    titleLarge = TextStyle(
@@ -90,6 +90,6 @@ val kanitTypography = Typography(
         fontWeight = FontWeight.Normal,
         fontSize = 22.sp,
         lineHeight = 28.sp,
-        letterSpacing = 0.2.sp
+//        letterSpacing = 0.2.sp
     ),
 )

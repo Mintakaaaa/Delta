@@ -1,6 +1,7 @@
 package com.gym.delta
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -29,10 +30,9 @@ interface WorkoutDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(vararg workouts: Workout)
 
-//    @Delete
-//    suspend fun delete(workout: Workout)
-
     @Query("DELETE FROM Workouts")
     suspend fun deleteAll()
 
+    @Delete
+    suspend fun delete(workout: Workout)
 }
