@@ -13,3 +13,4 @@ val DarkNavy = Color(0xFF16171D)
 
 val Yellow = Color(0xFFE4B363)
 val DarkYellow = Color(0xFFBB8E43)
+val DarkerYellow = Color(0xFF785A2A)

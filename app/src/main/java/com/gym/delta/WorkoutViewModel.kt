@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.gym.delta.model.Workout
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class WorkoutViewModel(private val repository: WorkoutRepository) : ViewModel() {
@@ -20,6 +22,10 @@ class WorkoutViewModel(private val repository: WorkoutRepository) : ViewModel() 
      */
     fun insert(workout: Workout) = viewModelScope.launch {
         repository.insert(workout)
+    }
+
+    fun updateName(name: String, newName: String) = viewModelScope.launch {
+        repository.updateName(name, newName)
     }
 
     fun delete(workout: Workout) = viewModelScope.launch {

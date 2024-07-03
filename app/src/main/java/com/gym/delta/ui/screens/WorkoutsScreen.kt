@@ -3,6 +3,12 @@ package com.gym.delta.ui.screens
 import androidx.annotation.OptIn
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -32,33 +38,25 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.KeyboardArrowDown
-import androidx.compose.material.icons.outlined.KeyboardArrowUp
-import androidx.compose.material.icons.outlined.Lock
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.Divider
+
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.VerticalDivider
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
@@ -68,50 +66,36 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.LiveData
 import androidx.media3.common.util.Log
 import com.gym.delta.WorkoutViewModel
-import com.gym.delta.WorkoutViewModelFactory
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.gym.delta.AppDatabase
-import com.gym.delta.WorkoutRepository
+
 import com.gym.delta.model.Workout
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import java.util.ArrayList
+
 import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
+
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import androidx.lifecycle.ViewModel
 import androidx.media3.common.util.UnstableApi
-import com.gym.delta.R
 import com.gym.delta.ui.theme.DeltaTheme
 import com.gym.delta.ui.theme.kanitFontFamily
-import com.gym.delta.ui.theme.kanitTypography
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -199,12 +183,10 @@ fun TopRoundedTitleContainer(title : String, subHeading : String) {
             thickness = 3.dp,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f, )
         )
-
         Text(
             text = subHeading,
             color = MaterialTheme.colorScheme.onBackground,
             style = MaterialTheme.typography.headlineMedium
-
         )
     }
 }
@@ -225,9 +207,14 @@ fun WorkoutsContainer(workouts : State<List<Workout>>, workoutViewModel: Workout
         items(workouts.value, key = { workout -> workout.id }) { workout ->
 //            var visible by remember { mutableStateOf(true) }
 //            AnimatedVisibility(visible = visible, enter = fadeIn(), exit = fadeOut()) {
-                WorkoutElement(workout = workout, onDeleteClick = {
+                WorkoutElement(
+                    workout = workout,
+                    onDeleteClick = {
 //                    visible = false
                     workoutViewModel.delete(workout)
+                },
+                    onUpdateNameClick = { newWorkoutName ->
+                    workoutViewModel.updateName(workout.name, newWorkoutName)
                 })
                 Spacer(Modifier.padding(4.dp))
 //            }
@@ -243,12 +230,12 @@ fun WorkoutsContainer(workouts : State<List<Workout>>, workoutViewModel: Workout
                 modifier = Modifier
                     .size(50.dp),
                 shape = RoundedCornerShape(10.dp),
-                colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Icon(
                     Icons.Filled.Add,
                     contentDescription = "Add button",
-                    tint = MaterialTheme.colorScheme.secondaryContainer,
+                    tint = MaterialTheme.colorScheme.primaryContainer,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(4.dp)
@@ -258,21 +245,27 @@ fun WorkoutsContainer(workouts : State<List<Workout>>, workoutViewModel: Workout
     }
 }
 
+
+
+
 @OptIn(androidx.media3.common.util.UnstableApi::class)
 @Composable
-fun WorkoutElement(workout : Workout, onDeleteClick: () -> Unit) {
-    val checkboxStates = remember(workout.id) { workout.days?.toMutableStateList() } // Load workout days into a mutable list
+fun WorkoutElement(workout : Workout, onDeleteClick: () -> Unit, onUpdateNameClick: (String) -> Unit) {
+    val checkboxStates = remember(workout.id) { workout.days.toMutableStateList() } // Load workout days into a mutable list
     var expanded by remember(workout.id) { mutableStateOf(false) } // Remember expanded state per workout
-    Log.d("workout.days = ", workout.days.toString())
 
     var editingName by remember { mutableStateOf(false) }
-    val textFieldValue = remember { mutableStateOf(workout.name?.let { // need this to put BasicTextField cursor on end of string
-            TextFieldValue(
-                it,
-                TextRange(it.length)
-            )
-        })
-    }
+    var workoutName by remember { mutableStateOf(workout.name) }
+
+
+    var workoutNameTextState by remember { mutableStateOf(TextFieldValue(workout.name, selection = TextRange(workout.name.length))) }
+//    val textFieldValue = remember { mutableStateOf(workout.name.let { // need this to put BasicTextField cursor on end of string
+//        TextFieldValue(
+//            it,
+//            TextRange(it.length)
+//        )
+//    })
+//    }
 
     val focusManager = LocalFocusManager.current // NOTE (later use?) focusManager.clearFocus()
     val focusRequester = remember { FocusRequester() }
@@ -291,53 +284,27 @@ fun WorkoutElement(workout : Workout, onDeleteClick: () -> Unit) {
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(20.dp)
+            modifier = Modifier.padding(20.dp).fillMaxWidth()
         ) {
             AnimatedVisibility(
                 visible = expanded && !editingName,
-                enter = expandHorizontally() + fadeIn(),
-                exit = shrinkHorizontally() + fadeOut(),
+                enter = expandHorizontally(expandFrom = Alignment.Start, animationSpec = tween(delayMillis = 500)) ,
+                exit = shrinkHorizontally(shrinkTowards = Alignment.Start) + fadeOut(),
             ) {
-                Row {
+                Row() {
                     FilledIconButton(
-                        onClick = { /*
-
-                        TODO EDIT NAME FUNCTIONALITY
-
-                        TODO on EDIT click
-                        TODO -> text appears from top of screen saying "editing workout name"
-                        TODO -> edit button shrinks to the left
-                        TODO -> days card collapses
-                        TODO -> arrow button shrinks to right OR gets replaced (see below)
-                        TODO -> in place of arrow, is TICK and CROSS buttons.
-
-                        TODO on TICK click
-                        TODO -> TICK and CROSS replaced by up arrow
-                        TODO -> days card is expanded
-                        TODO -> edit button appears
-                        TODO -> "editing workout name" text slides up out of screen
-                        TODO -> new workout name is saved
-
-                        TODO on CROSS click
-                        TODO -> TICK and CROSS replaced by up arrow
-                        TODO -> days card is expanded
-                        TODO -> edit button appears
-                        TODO -> "editing workout name" text slides up out of screen
-                        TODO -> old workout name is displayed
-
-                        TODO on focus loss, nothing?
-
-                        */
-                            editingName = !editingName
+                        onClick = {
+                            editingName = true
+                            expanded = false
                         },
                         modifier = Modifier.size(40.dp),
                         shape = RoundedCornerShape(10.dp),
-                        colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                        colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
                         Icon(
                             Icons.Filled.Edit,
                             contentDescription = "Edit button",
-                            tint = MaterialTheme.colorScheme.secondaryContainer,
+                            tint = MaterialTheme.colorScheme.primaryContainer,
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(4.dp)
@@ -346,40 +313,102 @@ fun WorkoutElement(workout : Workout, onDeleteClick: () -> Unit) {
                     Spacer(Modifier.width(10.dp))
                 }
             }
+            AnimatedVisibility(
+                visible = editingName,
+                enter = expandHorizontally(animationSpec = tween(durationMillis = 500, delayMillis = 500)) + fadeIn(),
+                exit = shrinkHorizontally(animationSpec = tween(durationMillis = 500)) + fadeOut(),
 
-            workout.name?.let {
-                if (editingName) {
-                    textFieldValue.value?.let { it1 ->
-                        BasicTextField(
-                            value = it1,
-                            onValueChange = { newText -> textFieldValue.value = newText },
-                            cursorBrush = SolidColor(MaterialTheme.colorScheme.secondary), // cursor color
-                            textStyle =  TextStyle(fontFamily = kanitFontFamily, fontSize = 22.sp, color = MaterialTheme.colorScheme.secondary),
-                            modifier = Modifier.weight(1f).focusRequester(focusRequester).onGloballyPositioned { focusRequester.requestFocus() },
-                            // NOTE: below is optional UNDERLINE
-//                            decorationBox = { innerTextField ->
-//                                Column(modifier = Modifier.padding(end = 5.dp)) {
-//                                    innerTextField()
-//                                    Divider(color = MaterialTheme.colorScheme.secondary, thickness = 1.dp)
-//                                }
-//                            }
-                        )
+                ) {
+                Column {
+                    BasicTextField(
+                        value = workoutNameTextState,
+                        onValueChange = { newText -> workoutNameTextState = newText },
+                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary), // cursor color
+                        textStyle =  TextStyle(fontFamily = kanitFontFamily, fontSize = 22.sp, color = MaterialTheme.colorScheme.primary),
+                        modifier = Modifier
+                            .focusRequester(focusRequester)
+                            .onGloballyPositioned { focusRequester.requestFocus() },
+                        // NOTE: below is optional UNDERLINE
+                        //                            decorationBox = { innerTextField ->
+                        //                                Column(modifier = Modifier.padding(end = 5.dp)) {
+                        //                                    innerTextField()
+                        //                                    Divider(color = MaterialTheme.colorScheme.primary, thickness = 1.dp)
+                        //                                }
+                        //                            }
+                    )
+
+                    Text(
+                        text = "Editing workout name",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.padding(0.dp)
+                    )
+
+                }
+                Spacer(Modifier.weight(1f))
+
+            }
+
+            AnimatedVisibility(visible = !editingName,
+                enter = expandHorizontally(expandFrom = Alignment.Start, animationSpec = tween(durationMillis = 500, delayMillis = 500)) + fadeIn(),
+                exit = shrinkHorizontally(shrinkTowards = Alignment.Start, animationSpec = tween(durationMillis = 500, delayMillis = 0)) + fadeOut(),
+                ) {
+                Text(
+                    text = workoutName, style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.primary
+                )
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            
+            AnimatedVisibility(
+                visible = editingName,
+                enter = expandHorizontally(animationSpec = tween(durationMillis = 500, delayMillis = 500)) + fadeIn(),
+                exit = shrinkHorizontally(animationSpec = tween(durationMillis = 500)) + fadeOut(),
+
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    IconButton(
+                        onClick = { /* TODO TICK FUNCTIONALITY */
+                            val newWorkoutName = workoutNameTextState.text
+                            onUpdateNameClick(newWorkoutName)
+                            workoutName = newWorkoutName
+                            editingName = false
+                            expanded = true
+                        },
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Icon(Icons.Filled.Check, contentDescription = "Check", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.fillMaxSize())
+                    }
+
+                    IconButton(
+                        onClick = { // exit editingName state, enter expanded state, and reset workout name text field
+                            workoutNameTextState = TextFieldValue(text = workoutName, selection = TextRange(workoutName.length))
+                            editingName = false
+                            expanded = true
+                        },
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Icon(Icons.Filled.Close, contentDescription = "Close", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.fillMaxSize())
                     }
                 }
-                else {
-                    Text(
-                        text = it, style = MaterialTheme.typography.headlineMedium, modifier = Modifier.weight(1f)
-                    )
+            }
+            AnimatedVisibility(
+                visible = !editingName,
+                enter = expandHorizontally(animationSpec = tween(durationMillis = 500, delayMillis = 500)) + fadeIn(),
+                exit = shrinkHorizontally(animationSpec = tween(durationMillis = 500)) + fadeOut(),
+            ) {
+                IconButton(
+                    onClick = { expanded = !expanded },
+                    modifier = Modifier.size(40.dp)
+                ) {
+                    if (expanded) { Icon(Icons.Filled.KeyboardArrowUp, contentDescription = "Arrow up", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.fillMaxSize()) }
+                    else { Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "Arrow down", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.fillMaxSize()) }
                 }
             }
-            IconButton(
-                onClick = { expanded = !expanded },
-                modifier = Modifier.size(40.dp)
-            ) {
-                if (expanded) { Icon(Icons.Filled.KeyboardArrowUp, contentDescription = "Arrow up", modifier = Modifier.fillMaxSize()) }
-                else { Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "Arrow down", modifier = Modifier.fillMaxSize()) }
-            }
         }
+
+
         AnimatedVisibility(
             visible = expanded,
             enter = expandVertically() + fadeIn(),
@@ -435,8 +464,8 @@ fun ExpandableDaysCard(checkboxStates: SnapshotStateList<Boolean>?, onDeleteClic
                             // TODO on check change update days of this workout!!
                         },
                         colors = CheckboxDefaults.colors(
-                            checkedColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                            uncheckedColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                            checkedColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            uncheckedColor = MaterialTheme.colorScheme.onPrimaryContainer,
                             checkmarkColor = Color.White
                         ),
                         modifier = Modifier.clip(RoundedCornerShape(10.dp))
@@ -452,12 +481,12 @@ fun ExpandableDaysCard(checkboxStates: SnapshotStateList<Boolean>?, onDeleteClic
                 modifier = Modifier
                     .size(40.dp),
                 shape = RoundedCornerShape(10.dp),
-                colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Icon(
                     Icons.Filled.Delete,
                     contentDescription = "Add button",
-                    tint = MaterialTheme.colorScheme.secondaryContainer,
+                    tint = MaterialTheme.colorScheme.primaryContainer,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(4.dp)
@@ -510,7 +539,7 @@ fun WorkoutsPreview() {
 //        val viewModel = WorkoutViewModel(WorkoutRepository())
 //        val viewModel = WorkoutViewModel(WorkoutRepository(AppDatabase.getInstance(LocalContext.current, CoroutineScope(Dispatchers.IO)).workoutDao()))
 //        WorkoutsScreen(workoutViewModel = viewModel)
-        WorkoutElement(Workout(id = 0, name = "Hello", days = arrayListOf(true, true, true, false, false, true, true)), onDeleteClick = {})
+        WorkoutElement(Workout(id = 0, name = "Hello", days = arrayListOf(true, true, true, false, false, true, true)), onDeleteClick = {}, onUpdateNameClick = {})
 //        TopRoundedTitleContainer("Workouts", "Saturday")
 //        ExpandableDaysCard(checkboxStates = null)
 

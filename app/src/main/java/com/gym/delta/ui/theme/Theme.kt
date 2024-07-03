@@ -16,12 +16,12 @@ private val DarkColorScheme = darkColorScheme(
     background = GreyBase,
     onBackground = GreyMid,
 
-    primary = Yellow,
+    primary = DarkYellow,
     onPrimaryContainer = DarkYellow,
     primaryContainer = Navy,
 
-    secondary = DarkYellow,
-    onSecondaryContainer = DarkYellow,
+    secondary = DarkerYellow,
+    onSecondaryContainer = DarkerYellow,
     secondaryContainer = DarkNavy,
 
 //    surface = GreyMid,
