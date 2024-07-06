@@ -256,17 +256,7 @@ fun WorkoutElement(workout : Workout, onDeleteClick: () -> Unit, onUpdateNameCli
 
     var editingName by remember { mutableStateOf(false) }
     var workoutName by remember { mutableStateOf(workout.name) }
-
-
     var workoutNameTextState by remember { mutableStateOf(TextFieldValue(workout.name, selection = TextRange(workout.name.length))) }
-//    val textFieldValue = remember { mutableStateOf(workout.name.let { // need this to put BasicTextField cursor on end of string
-//        TextFieldValue(
-//            it,
-//            TextRange(it.length)
-//        )
-//    })
-//    }
-
     val focusManager = LocalFocusManager.current // NOTE (later use?) focusManager.clearFocus()
     val focusRequester = remember { FocusRequester() }
 
@@ -280,7 +270,10 @@ fun WorkoutElement(workout : Workout, onDeleteClick: () -> Unit, onUpdateNameCli
     }
     Card(
         modifier = Modifier
-            .clip(RoundedCornerShape(0.dp))
+            .clip(RoundedCornerShape(0.dp)).clickable {
+                Log.d("Workout Element", "Clicked element, not necessarily ^")
+                // TODO from here, enter this specific workout page... where you can see workout notes, exercises, etc. refer to figma.
+            }
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -291,7 +284,7 @@ fun WorkoutElement(workout : Workout, onDeleteClick: () -> Unit, onUpdateNameCli
                 enter = expandHorizontally(expandFrom = Alignment.Start, animationSpec = tween(delayMillis = 500)) ,
                 exit = shrinkHorizontally(shrinkTowards = Alignment.Start) + fadeOut(),
             ) {
-                Row() {
+                Row {
                     FilledIconButton(
                         onClick = {
                             editingName = true
@@ -346,7 +339,6 @@ fun WorkoutElement(workout : Workout, onDeleteClick: () -> Unit, onUpdateNameCli
 
                 }
                 Spacer(Modifier.weight(1f))
-
             }
 
             AnimatedVisibility(visible = !editingName,
