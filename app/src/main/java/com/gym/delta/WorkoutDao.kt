@@ -20,8 +20,11 @@ interface WorkoutDao {
     @Query("SELECT * FROM Workouts")
     fun getAll(): Flow<List<Workout>>
 
-    @Query("UPDATE Workouts SET name = :newName WHERE name = :name")
-    suspend fun updateName(name: String, newName: String)
+    @Query("UPDATE Workouts SET name = :newName WHERE id = :id")
+    suspend fun updateName(id: Long, newName: String)
+
+    @Query("UPDATE Workouts SET days = :newDays WHERE id = :id")
+    suspend fun updateDays(id: Long, newDays: ArrayList<Boolean>)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(vararg workouts: Workout)

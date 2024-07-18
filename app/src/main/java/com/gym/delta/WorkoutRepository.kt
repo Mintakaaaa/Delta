@@ -21,8 +21,13 @@ class WorkoutRepository(private val workoutDao: WorkoutDao) {
     }
 
     @WorkerThread
-    suspend fun updateName(name: String, newName: String) {
-        workoutDao.updateName(name, newName)
+    suspend fun updateName(id: Long, newName: String) {
+        workoutDao.updateName(id, newName)
+    }
+
+    @WorkerThread
+    suspend fun updateDays(id: Long, newDays: ArrayList<Boolean>) {
+        workoutDao.updateDays(id, newDays)
     }
 
     @WorkerThread

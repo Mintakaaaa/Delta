@@ -24,8 +24,12 @@ class WorkoutViewModel(private val repository: WorkoutRepository) : ViewModel() 
         repository.insert(workout)
     }
 
-    fun updateName(name: String, newName: String) = viewModelScope.launch {
-        repository.updateName(name, newName)
+    fun updateName(id: Long, newName: String) = viewModelScope.launch {
+        repository.updateName(id, newName)
+    }
+
+    fun updateDays(id: Long, newDays: ArrayList<Boolean>) = viewModelScope.launch {
+        repository.updateDays(id, newDays)
     }
 
     fun delete(workout: Workout) = viewModelScope.launch {

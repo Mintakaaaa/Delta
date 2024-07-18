@@ -2,12 +2,6 @@ package com.gym.delta.ui.screens
 
 import androidx.annotation.OptIn
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
@@ -15,9 +9,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -76,7 +67,6 @@ import com.gym.delta.WorkoutViewModel
 import com.gym.delta.model.Workout
 
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -181,7 +171,7 @@ fun TopRoundedTitleContainer(title : String, subHeading : String) {
                 .padding(10.dp)
                 .clip(RoundedCornerShape(6.dp)),
             thickness = 3.dp,
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f, )
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f)
         )
         Text(
             text = subHeading,
@@ -214,8 +204,13 @@ fun WorkoutsContainer(workouts : State<List<Workout>>, workoutViewModel: Workout
                     workoutViewModel.delete(workout)
                 },
                     onUpdateNameClick = { newWorkoutName ->
-                    workoutViewModel.updateName(workout.name, newWorkoutName)
-                })
+                    workoutViewModel.updateName(workout.id, newWorkoutName)
+                },
+                    onDayClick = { newDaysState ->
+                        val newDays: ArrayList<Boolean> = newDaysState.toCollection(ArrayList())
+                        workoutViewModel.updateDays(workout.id, newDays)
+                    }
+                )
                 Spacer(Modifier.padding(4.dp))
 //            }
         }
@@ -250,7 +245,7 @@ fun WorkoutsContainer(workouts : State<List<Workout>>, workoutViewModel: Workout
 
 @OptIn(androidx.media3.common.util.UnstableApi::class)
 @Composable
-fun WorkoutElement(workout : Workout, onDeleteClick: () -> Unit, onUpdateNameClick: (String) -> Unit) {
+fun WorkoutElement(workout : Workout, onDeleteClick: () -> Unit, onUpdateNameClick: (String) -> Unit, onDayClick: (SnapshotStateList<Boolean>) -> Unit) {
     val checkboxStates = remember(workout.id) { workout.days.toMutableStateList() } // Load workout days into a mutable list
     var expanded by remember(workout.id) { mutableStateOf(false) } // Remember expanded state per workout
 
@@ -361,7 +356,7 @@ fun WorkoutElement(workout : Workout, onDeleteClick: () -> Unit, onUpdateNameCli
                     horizontalArrangement = Arrangement.End
                 ) {
                     IconButton(
-                        onClick = { /* TODO TICK FUNCTIONALITY */
+                        onClick = {
                             val newWorkoutName = workoutNameTextState.text
                             onUpdateNameClick(newWorkoutName)
                             workoutName = newWorkoutName
@@ -406,14 +401,52 @@ fun WorkoutElement(workout : Workout, onDeleteClick: () -> Unit, onUpdateNameCli
             enter = expandVertically() + fadeIn(),
             exit = shrinkVertically() + fadeOut()
         ) {
-            ExpandableDaysCard(checkboxStates, onDeleteClick = onDeleteClick)
+            ExpandableDaysCard(checkboxStates, onDeleteClick = onDeleteClick, onDayClick  = onDayClick)
         }
     }
 }
 
+val dayOfWeekMap = mapOf(
+    0 to "Monday",
+    1 to "Tuesday",
+    2 to "Wednesday",
+    3 to "Thursday",
+    4 to "Friday",
+    5 to "Saturday",
+    6 to "Sunday"
+)
+
+fun getDaysSelectedText(days: SnapshotStateList<Boolean>?): String {
+    var daysText = ""
+    var selected = 0
+    if (days != null) {
+        for (day in days) {
+            if (day) {
+                selected ++
+            }
+        }
+    }
+    if (selected == 0) { daysText = "No days selected" }
+    else {
+        if (days != null) {
+            days.forEachIndexed { dayIndex, isChecked ->
+                if (isChecked) {
+                    daysText += ( dayOfWeekMap[dayIndex] + " | ")
+                }
+            }
+            daysText = daysText.substring(0, daysText.length - 3)
+        }
+    }
+    return daysText
+}
+
 @OptIn(UnstableApi::class)
 @Composable
-fun ExpandableDaysCard(checkboxStates: SnapshotStateList<Boolean>?, onDeleteClick: () -> Unit) {
+fun ExpandableDaysCard(
+    checkboxStates: SnapshotStateList<Boolean>?,
+    onDeleteClick: () -> Unit,
+    onDayClick: (SnapshotStateList<Boolean>) -> Unit
+) {
     val days = arrayOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 
     Column(
@@ -426,7 +459,7 @@ fun ExpandableDaysCard(checkboxStates: SnapshotStateList<Boolean>?, onDeleteClic
             modifier = Modifier
                 .height(4.dp)
                 .fillMaxWidth(),
-            color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f, )
+            color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f)
         )
         Row( // DAYS & SELECT
             Modifier
@@ -454,6 +487,7 @@ fun ExpandableDaysCard(checkboxStates: SnapshotStateList<Boolean>?, onDeleteClic
                             checkboxStates[index] = isChecked
                             Log.d("state $index", checkboxStates[index].toString())
                             // TODO on check change update days of this workout!!
+                            onDayClick(checkboxStates)
                         },
                         colors = CheckboxDefaults.colors(
                             checkedColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -488,40 +522,6 @@ fun ExpandableDaysCard(checkboxStates: SnapshotStateList<Boolean>?, onDeleteClic
     }
 }
 
-val dayOfWeekMap = mapOf(
-    0 to "Monday",
-    1 to "Tuesday",
-    2 to "Wednesday",
-    3 to "Thursday",
-    4 to "Friday",
-    5 to "Saturday",
-    6 to "Sunday"
-)
-
-fun getDaysSelectedText(days: SnapshotStateList<Boolean>?): String {
-    var daysText = ""
-    var selected = 0
-    if (days != null) {
-        for (day in days) {
-            if (day) {
-                selected ++
-            }
-        }
-    }
-    if (selected == 0) { daysText = "No days selected" }
-    else {
-        if (days != null) {
-            days.forEachIndexed() { dayIndex, isChecked ->
-                if (isChecked) {
-                    daysText += ( dayOfWeekMap[dayIndex] + " | ")
-                }
-            }
-            daysText = daysText.substring(0, daysText.length - 3)
-        }
-    }
-    return daysText
-}
-
 @Preview
 @Composable
 fun WorkoutsPreview() {
@@ -531,7 +531,7 @@ fun WorkoutsPreview() {
 //        val viewModel = WorkoutViewModel(WorkoutRepository())
 //        val viewModel = WorkoutViewModel(WorkoutRepository(AppDatabase.getInstance(LocalContext.current, CoroutineScope(Dispatchers.IO)).workoutDao()))
 //        WorkoutsScreen(workoutViewModel = viewModel)
-        WorkoutElement(Workout(id = 0, name = "Hello", days = arrayListOf(true, true, true, false, false, true, true)), onDeleteClick = {}, onUpdateNameClick = {})
+        WorkoutElement(Workout(id = 0, name = "Hello", days = arrayListOf(true, true, true, false, false, true, true)), onDeleteClick = {}, onUpdateNameClick = {}, onDayClick = {})
 //        TopRoundedTitleContainer("Workouts", "Saturday")
 //        ExpandableDaysCard(checkboxStates = null)
 
